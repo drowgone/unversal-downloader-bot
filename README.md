@@ -95,9 +95,3 @@ python bot.py
 **Muallif**: Donegrow  
 **AI Yordamchi**: Antigravity AI  
 **Versiya**: 2.0.0 (Parallel & Multi-user)
-# unversal-dowonloader
-# unversal-dowonloader
-# unversal-dowonloader
-# unversal-dowonloader
-# unversal-dowonloader
-# unversal-downloader-bot
