@@ -10,3 +10,4 @@ venv/
 *.m4a
 *.webm
 *.mp4
+celerybeat-schedule
