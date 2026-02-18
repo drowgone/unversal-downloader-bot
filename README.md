@@ -121,6 +121,8 @@ The application is configured via the `.env` file. Key settings include:
 
 - `/start` - Start the bot and see status.
 - `/stats` - (Admin) View system statistics.
+- `/users` - (Admin) Users list
+- `/search <username>` - (Admin) search user id
 - `/broadcast` - (Admin) Send message to all users.
 - `/ban <user_id>` - (Admin) Ban a user.
 - `/unban <user_id>` - (Admin) Unban a user.
