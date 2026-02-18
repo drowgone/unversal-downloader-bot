@@ -85,28 +85,7 @@
    - Redis Server
    - PostgreSQL Server
 
-2. **Create Virtual Environment:**
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # Linux/Mac
-   # venv\Scripts\activate   # Windows
-   ```
 
-3. **Install Python Packages:**
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-4. **Run Services:**
-   - Start Redis & PostgreSQL.
-   - Start Celery Worker:
-     ```bash
-     celery -A app.workers.celery_app worker --loglevel=info -Q media
-     ```
-   - Start Bot:
-     ```bash
-     python -m app.main
-     ```
 
 ## ⚙️ Configuration
 
