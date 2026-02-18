@@ -1,97 +1,155 @@
-# 🎵 Advanced Multi-Platform Media Downloader Bot
+# 🎵 Universal Downloader Bot
 
-Bu bot YouTube, Instagram, TikTok va boshqa 1000+ platformalardan media fayllarni (Video/Audio/Photo) yuqori tezlikda yuklab olish va Telegram orqali yuborish uchun mo'ljallangan.
+**Universal Downloader Bot** is a high-performance, scalable Telegram bot designed to download media from **YouTube**, **Instagram**, **TikTok**, and over 1000+ other sites. It supports high-quality video/audio downloads, playlists, and handles large files efficiently using a microservices architecture.
 
-## ✨ Asosiy Imkoniyatlar
+## ✨ Features
 
-- **🚀 Parallel Yuklab Olish**: Playlist'dagi videolarni bir vaqtning o'zida bir nechta worker'lar yordamida yuklaydi.
-- **👥 Multi-User Support**: Bir vaqtning o'zida o'nlab foydalanuvchilar botdan foydalanishi mumkin. Har bir foydalanuvchi uchun alohida navbat va papka izolyatsiyasi mavjud.
-- **📱 Ko'p Platformali**:
-  - **YouTube**: Bitta video yoki butun playlist. MP3 (Audio) yoki MP4 (Video) tanlash imkoniyati.
-  - **Instagram**: Video (Reels), Rasm va Karusel (multiple photos) postlarini yuklab olish.
-  - **TikTok**: Suv belgisiz (no watermark) videolarni yuklash.
-  - **Va boshqalar**: Facebook, Twitter, SoundCloud va boshqa 1000+ saytlar.
-- **📦 Katta Fayllar Bilan Ishlash**:
-  - 50MB dan katta fayllar avtomatik ravishda **Document** sifatida yuboriladi (Telegram Bot API limiti sababli).
-  - Timeout xatoliklarini oldini olish uchun 10 daqiqalik (600s) yuborish vaqti o'rnatilgan.
-- **📂 Per-User Isolation**: Har bir foydalanuvchi fayllari alohida `.temp_downloads/{user_id}/` papkasida saqlanadi, bu xavfsizlik va tartibni ta'minlaydi.
-- **⏳ Navbat Tizimi (Queue)**: Server resurslarini himoya qilish uchun global (15) va per-user (3) parallel yuklash cheklovlari (Semaphore) mavjud.
+- **📺 Multi-Platform Support**:
+  - **YouTube**: Videos, Audio (MP3), and Playlists.
+  - **Instagram**: Reels, Stories, Posts, and Carousels.
+  - **TikTok**: Watermark-free video downloads.
+  - **Other**: Support for 1000+ sites via `yt-dlp`.
+- **🚀 High Performance**:
+  - Asynchronous task processing with **Celery** & **Redis**.
+  - scalable worker nodes for handling concurrent downloads.
+- **🛠 Advanced Tools**:
+  - Format selection (MP3/MP4) and Quality options.
+  - Automatic video compression for Telegram limits.
+  - Smart link detection and processing.
+- **👤 User Management**:
+  - Admin panel for broadcasting and user management.
+  - Subscription system (Free/Premium/Admin) with usage limits.
+  - Ban/Unban functionality.
+- **🐳 Dockerized**: Fully containerized for easy deployment.
 
-## 🚀 O'rnatish
+## 🏗 Tech Stack
 
-### 1. Repozitoriyani clone qiling
+- **Language**: Python 3.11+
+- **Framework**: [python-telegram-bot](https://python-telegram-bot.org/) (v20+)
+- **Task Queue**: Celery & Redis
+- **Database**: PostgreSQL (User data & Job persistence)
+- **Storage**: Local filesystem / MinIO (S3 compatible) compatible
+- **Containerization**: Docker & Docker Compose
 
-```bash
-git clone https://github.com/drowgone/unversal-dowonloader.git
-cd unversal-dowonloader
+## 🚀 Installation & Deployment
+
+### Prerequisites
+
+- Docker & Docker Compose installed on your server.
+- A Telegram Bot Token (from [@BotFather](https://t.me/BotFather)).
+
+### Quick Start (Docker)
+
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/drowgone/unversal-downloader-bot.git
+   cd unversal-downloader-bot
+   ```
+
+2. **Configure Environment:**
+   Copy the example environment file:
+   ```bash
+   cp .env.example .env
+   ```
+   Edit `.env` with your credentials:
+   ```env
+   # Telegram
+   BOT_TOKEN=your_bot_token_here
+   ADMIN_IDS=12345678,87654321
+
+   # Database
+   POSTGRES_USER=postgres
+   POSTGRES_PASSWORD=secret
+   POSTGRES_DB=media_downloader
+   
+   # Redis
+   REDIS_URL=redis://redis:6379/0
+   ```
+
+3. **Run with Docker Compose:**
+   ```bash
+   docker-compose up -d --build
+   ```
+
+4. **Verify:**
+   Check if containers are running:
+   ```bash
+   docker-compose ps
+   ```
+
+### Local Development (Manual)
+
+1. **Install System Dependencies:**
+   - Python 3.11+
+   - FFmpeg (Required for media conversion)
+   - Redis Server
+   - PostgreSQL Server
+
+2. **Create Virtual Environment:**
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # Linux/Mac
+   # venv\Scripts\activate   # Windows
+   ```
+
+3. **Install Python Packages:**
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+4. **Run Services:**
+   - Start Redis & PostgreSQL.
+   - Start Celery Worker:
+     ```bash
+     celery -A app.workers.celery_app worker --loglevel=info -Q media
+     ```
+   - Start Bot:
+     ```bash
+     python -m app.main
+     ```
+
+## ⚙️ Configuration
+
+The application is configured via the `.env` file. Key settings include:
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `BOT_TOKEN` | Telegram Bot API Token | Required |
+| `ADMIN_IDS` | Comma-separated Admin User IDs | Required |
+| `REDIS_URL` | Redis connection URL | `redis://localhost:6379/0` |
+| `POSTGRES_URL` | Database connection URL | `postgresql://...` |
+| `STORAGE_DIR` | Directory for temporary downloads | `./storage` |
+| `MAX_FILE_SIZE_MB` | Max file size for uploads | `50` |
+| `MAX_CONCURRENT_JOBS` | Max parallel downloads per user | `2` |
+
+## 📂 Project Structure
+
+```
+.
+├── app/
+│   ├── bot/            # Telegram handlers & keyboards
+│   ├── core/           # Config & Logging
+│   ├── db/             # Database models & session
+│   ├── services/       # Business logic (Instagram, Media, Users)
+│   ├── workers/        # Celery tasks
+│   └── main.py         # Entry point
+├── docker-compose.yml  # Container orchestration
+├── Dockerfile          # Image definition
+└── requirements.txt    # Python dependencies
 ```
 
-### 2. Virtual environment yarating
+## 📝 Commands
 
-```bash
-python -m venv venv
-source venv/bin/activate  # Linux/MacOS
-# yoki
-venv\Scripts\activate  # Windows
-```
+- `/start` - Start the bot and see status.
+- `/stats` - (Admin) View system statistics.
+- `/broadcast` - (Admin) Send message to all users.
+- `/ban <user_id>` - (Admin) Ban a user.
+- `/unban <user_id>` - (Admin) Unban a user.
 
-### 3. Dependencies o'rnating
+## 🤝 Contributing
 
-```bash
-pip install -r requirements.txt
-```
+Contributions are welcome! Please feel free to submit a Pull Request.
 
-### 4. FFmpeg o'rnating (Audio konvertatsiya uchun zarur)
+## 📄 License
 
-**Ubuntu/Debian:** `sudo apt install ffmpeg`  
-**MacOS:** `brew install ffmpeg`  
-**Windows:** https://ffmpeg.org/download.html dan yuklab olib PATH'ga qo'shing.
-
-### 5. Environment sozlash
-
-`.env` faylini yarating va quyidagilarni to'ldiring:
-
-```env
-TELEGRAM_BOT_TOKEN=sizning_bot_tokeningiz
-MAX_FILE_SIZE_MB=50
-MAX_PARALLEL_DOWNLOADS=5
-MAX_DOWNLOADS_PER_USER=3
-GLOBAL_MAX_DOWNLOADS=15
-DOWNLOAD_DIR=.temp_downloads
-```
-
-## 🎮 Ishlatish
-
-### Botni ishga tushirish
-
-```bash
-python bot.py
-```
-
-### Qanday foydalaniladi?
-
-1. Botga istalgan media linkini yuboring.
-2. Bot avtomatik ravishda platformani aniqlaydi.
-3. YouTube bo'lsa, sizdan formatni (Video yoki MP3) tanlashni so'raydi.
-4. Yuklash va yuborish jarayoni boshlanadi.
-
-## 📁 Loyiha Strukturasi
-
-- `bot.py`: Asosiy bot logikasi va Telegram handlerlar.
-- `youtube_handler.py`: yt-dlp interfeysi, Instagram fallback va meta-ma'lumotlar.
-- `parallel_downloader.py`: Asinxron parallel yuklash mexanizmi.
-- `image_downloader.py`: To'g'ridan-to'g'ri rasm va Instagram OG extraction.
-- `utils.py`: Loglar, fayllarni tozalash va sanitizatsiya.
-- `config.py`: Markaziy sozlamalar va limitlar.
-
-## 📝 Texnik Eslatmalar
-
-- **Fayl Hajmi**: Playlist yuklashda 50MB limiti mavjud. Bitta videoda cheklov yo'q, lekin 50MB dan oshsa Document bo'lib boradi.
-- **Instagram Fallback**: Instagram scrapingni bloklagan holatda bot OG:image va boshqa extraction usullaridan foydalanadi.
-- **Tozalash**: Yuklash va yuborish tugagach, vaqtincha fayllar darhol o'chiriladi.
-
----
-
-**Muallif**: Donegrow  
-**AI Yordamchi**: Antigravity AI  
-**Versiya**: 2.0.0 (Parallel & Multi-user)
+This project is licensed under the MIT License.
